@@ -18,17 +18,20 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.8.4",
+  solidity: "0.8.0",
   paths: {
     artifacts: './src/artifacts'
   },
   networks: {
     hardhat: {
-      chainId: +process.env.HARDHAT_CHAIN_ID || 1337
-    },
-    ropsten: {
-      url: process.env.ROPSTEN_URL,
-      accounts: [`0x${process.env.ROPSTEN_PRIVATE_KEY}`]
+      // chainId: +process.env.HARDHAT_CHAIN_ID || 1337,
+      // url: "http://127.0.0.1:8545",
+      // gas: 2100000,
+      // gasPrice: 8000000000
     }
+    // ropsten: {
+    //   url: process.env.ROPSTEN_URL,
+    //   accounts: [`0x${process.env.ROPSTEN_PRIVATE_KEY}`]
+    // }
   }
 };
