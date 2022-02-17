@@ -15,6 +15,16 @@ describe("RockPaperScissors", function () {
     await rockPaperScissorsContract.deployed();
   });
 
+  describe('faucet', () => {
+    it('allows a user to add tokens to their balances', async function() {
+      let balance = await rockPaperScissorsContract.connect(addr1).faucet()
+      await balance.wait()
+
+      let acc1Balance = await rockPaperScissorsContract.balanceOf(addr1.address);
+      expect(acc1Balance).to.equal(100);
+    });
+  });
+
   describe('initiateGame', () => {
     it("succeeds when given correct variables", async function() {
       let createGame = await rockPaperScissorsContract.initiateGame(1,1,owner.address);

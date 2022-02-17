@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
-// import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-// import "@openzeppelin/contracts/utils/Counters.sol";
-// import "./RochambeauToken.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "hardhat/console.sol";
 
-contract RockPaperScissors {
+contract RockPaperScissors is ERC20 {
     address public blackHoleAddress = 0x0000000000000000000000000000000000000000;
 
     uint private _totalGamesStarted;
@@ -28,14 +26,22 @@ contract RockPaperScissors {
     }
 
     uint public initialSupply = 1000000;
+    mapping(address => uint256) private balances;
 
     mapping(address => PlayerGame[]) public games;  //@NOTE: Need to update references to games below to use length to determine most recent game
     PlayerGame[] public playerGames;
 
-    constructor() {}
+    constructor() ERC20("Rochambeau", "RPS") {
+        _mint(msg.sender, 10000);
+        balances[msg.sender] += 10000;
+    }
  
+    function faucet () external {
+      _mint(msg.sender, 100);
+      balances[msg.sender] += 100;
+    }
+
     function initiateGame(uint _bet, uint _playerSelection, address _opponent) public payable {
-        // use blackhole address on front end
         uint numberOfGames = games[msg.sender].length;
         uint indexOfArray = numberOfGames > 0 ? games[msg.sender].length - 1 : 0;
 
@@ -43,7 +49,7 @@ contract RockPaperScissors {
         require(_playerSelection <= 2, "Invalid game move selection");
 
         _totalGamesStarted++;
-
+        balances[msg.sender] -= _bet;
         PlayerGame memory playerGame = PlayerGame(msg.sender, _opponent, playerSelection(_playerSelection), _bet, true, false, false);
         games[msg.sender].push(playerGame);
         playerGames.push(playerGame);
@@ -68,13 +74,17 @@ contract RockPaperScissors {
 
         if (winner == blackHoleAddress) {
             emit gameResult(blackHoleAddress, "Game ended in a tie!");
+            balances[playerGames[_gameToJoinIndex].player] += playerGames[_gameToJoinIndex].wagerAmount;
+            balances[playerGames[_gameToJoinIndex].opponent] += playerGames[_gameToJoinIndex].wagerAmount;
         } else {
+            balances[winner] += playerGames[_gameToJoinIndex].wagerAmount;
+            balances[winner] += playerGames[_gameToJoinIndex].wagerAmount;
             emit gameResult(winner, "Winner was decided!");
         }
     }
 
     // AT SOME POINT playerGames should just be games that aren't finished
-    function getAvailableGames() public view returns(PlayerGame[] memory){
+    function getAvailableGames() public view returns(PlayerGame[] memory playerGames_){
         return playerGames;
     }
 

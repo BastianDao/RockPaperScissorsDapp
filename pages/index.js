@@ -96,7 +96,7 @@ export default function Home() {
       setConnectedWalletAddressState(`MetaMask unavailable`)
       return
     }
-    console.log(betAmount, '/', gameMove)
+
     if (!betAmount || !gameMove) {
       console.log("make a selection and/or bet")
       return
@@ -112,6 +112,20 @@ export default function Home() {
       await contract.initiateGame(betAmount, gameMove, blackHoleAddress)
     } catch(error) {
       console.log(error, "ERROR CREATING GAME")
+    }
+  }
+
+  async function getTokenFromFaucet() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner()
+    const signerAddress = await signer.getAddress()
+    const contract = new ethers.Contract(process.env.NEXT_PUBLIC_ROCHAMBEU_ADDRESS, RockPaperScissors.abi, signer)
+
+
+    try { 
+      await contract.faucet();
+      } catch(error) {
+      console.log(error, "ERROR: FAUCET IS BROKEN")
     }
   }
 
@@ -181,6 +195,16 @@ export default function Home() {
                   <Link href="/games">
                     <a>Available Games</a>
                   </Link>
+                </div>
+                <div className="space-y-8">
+                  <div className="flex flex-col space-y-4">
+                    <button
+                      className="bg-blue-600 hover:bg-blue-700 text-white py-4 px-8 rounded-md"
+                      onClick={() => getTokenFromFaucet()}
+                    >
+                      Get RPS tokens from faucet
+                    </button>
+                  </div>
                 </div>
                 <div className="space-y-8">
                   <div className="flex flex-col space-y-4">
